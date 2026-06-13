@@ -16,7 +16,6 @@ func NewRepeatReader(size int64) *RepeatReader {
 }
 
 func (r *RepeatReader) Read(p []byte) (n int, err error) {
-	logger.Infof("repeatReader:Reader called\n")
 	if r.left <= 0 {
 		return 0, io.EOF
 	}
@@ -32,7 +31,6 @@ func (r *RepeatReader) Read(p []byte) (n int, err error) {
 	n = copy(p, randomBuffer[r.pos:r.pos+toCopy])
 	r.pos += n
 	r.left -= int64(n)
-	logger.Infof("pos=%v, left=%v\n", r.pos, r.left)
 	return n, nil
 }
 
@@ -50,11 +48,10 @@ func (r *RepeatReader) WriteTo(w io.Writer) (n int64, err error) {
 		}
 		nn, err := w.Write(randomBuffer[r.pos : r.pos+toCopy])
 		if err != nil {
-			logger.Error(err)
+			logger.Debug(err)
 			return n, err
 		}
 		r.pos += nn
 		r.left -= int64(nn)
-		logger.Infof("left=%v, pos=%v\n", r.left, r.pos)
 	}
 }

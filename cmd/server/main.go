@@ -55,6 +55,7 @@ func main() {
 
 	r.Use(middleware.Logger)
 	r.Get("/api/download", handlers.DownloadHandler)
+	r.Post("/api/upload", handlers.UploadHandler)
 
 	addr := fmt.Sprintf("%s:%d", config.ListenAddr(), config.ListenPort())
 

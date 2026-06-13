@@ -20,7 +20,7 @@ func DownloadHandler(w http.ResponseWriter, r *http.Request) {
 		err = nil
 	}
 	if err != nil || size <= 0 {
-		logger.Errorf("invalid size\n: %s", err)
+		logger.Errorf("invalid size: %s\n", err)
 		http.Error(w, "invalid size", http.StatusBadRequest)
 		return
 	}
