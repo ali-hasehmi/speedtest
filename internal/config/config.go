@@ -22,6 +22,9 @@ var (
 	downloadMaxSize    int64 = 100 * 1024 * 1024 // Max allowed download size per request, 0 for none
 	uploadMaxSize      int64 = 50 * 1024 * 1024  // Max allowed download size per request
 
+	cityDBPath = "" // path to the City/Country MMDB file, If empty, city-level lookup is skipped entirely.
+	asnDBPath  = "" // path to the ASN/ISP MMDB file. If empty, ASN/ISP lookup is skipped entirely.
+
 	logLevel = logger.INFO
 	logFile  = "" // path to write log data
 )
@@ -48,6 +51,9 @@ func Load(filenames ...string) error {
 	downloadBufferSize = getEnvByteSize("DOWNLOAD_BUFFER_SIZE", downloadBufferSize)
 	downloadMaxSize = getEnvByteSize("DOWNLOAD_MAX_SIZE", downloadMaxSize)
 	uploadMaxSize = getEnvByteSize("UPLOAD_MAX_SIZE", uploadMaxSize)
+
+	cityDBPath = getEnvString("CITY_DB_PATH", cityDBPath)
+	asnDBPath = getEnvString("ASN_DB_PATH", asnDBPath)
 
 	logLevel = getEnvLogLevel("LOG_LEVEL", logLevel)
 	logFile = getEnvString("LOG_FILE", logFile)
@@ -85,4 +91,10 @@ func LogLevel() logger.LogLevel {
 }
 func LogFile() string {
 	return logFile
+}
+func CityDBPath() string {
+	return cityDBPath
+}
+func AsnDBPath() string {
+	return asnDBPath
 }

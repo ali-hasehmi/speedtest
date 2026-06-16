@@ -7,6 +7,7 @@ import (
 
 	"github.com/ali-hasehmi/speedtest/internal/config"
 	"github.com/ali-hasehmi/speedtest/internal/handlers"
+	"github.com/ali-hasehmi/speedtest/internal/metadata"
 	"github.com/ali-hasehmi/speedtest/internal/speedtest"
 	"github.com/ali-hasehmi/speedtest/logger"
 	"github.com/go-chi/chi"
@@ -33,7 +34,7 @@ func main() {
 		logger.Fatal("failed to load config:", err)
 	}
 
-	logger.Infof(`Config loaded from %v with values: ListenAddr: %v, ListenPort: %v, ReadTimeout: %v, WriteTimeout: %v, IdleTimeout: %v, DownloadBufferSize: %v, DownloadMaxSize: %v, UploadMaxSize: %v, LogFile: %s, LogLevel: %v`,
+	logger.Infof(`Config loaded from %v with values: ListenAddr: %v, ListenPort: %v, ReadTimeout: %v, WriteTimeout: %v, IdleTimeout: %v, DownloadBufferSize: %v, DownloadMaxSize: %v, UploadMaxSize: %v, CityDBPath: %s, AsnDBPath: %s, LogFile: %s, LogLevel: %v`,
 		configPath,
 		config.ListenAddr(),
 		config.ListenPort(),
@@ -43,6 +44,8 @@ func main() {
 		config.DownloadBufferSize(),
 		config.DownloadMaxSize(),
 		config.UploadMaxSize(),
+		config.CityDBPath(),
+		config.AsnDBPath(),
 		config.LogFile(),
 		config.LogLevel(),
 	)
@@ -54,8 +57,16 @@ func main() {
 	r := chi.NewRouter()
 
 	r.Use(middleware.Logger)
+	r.Use(middleware.RealIP)
+
+	if err := metadata.Init(config.CityDBPath(), config.AsnDBPath()); err != nil {
+		logger.Warningf("IP metadata partially disabled: %v", err)
+	}
+	defer metadata.Close()
+
 	r.Get("/api/download", handlers.DownloadHandler)
 	r.Post("/api/upload", handlers.UploadHandler)
+	r.Get("/api/ip", handlers.IPHandler)
 
 	addr := fmt.Sprintf("%s:%d", config.ListenAddr(), config.ListenPort())
 
