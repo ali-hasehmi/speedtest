@@ -50,14 +50,14 @@ func main() {
 		config.LogLevel(),
 	)
 
-	speedtest.InitBuffer(config.DownloadBufferSize() * 1024 * 1024)
+	speedtest.InitBuffer(config.DownloadBufferSize())
 
 	logger.SetLevel(config.LogLevel())
 
 	r := chi.NewRouter()
 
-	r.Use(middleware.Logger)
 	r.Use(middleware.RealIP)
+	r.Use(middleware.Logger)
 
 	if err := metadata.Init(config.CityDBPath(), config.AsnDBPath()); err != nil {
 		logger.Warningf("IP metadata partially disabled: %v", err)
@@ -67,6 +67,7 @@ func main() {
 	r.Get("/api/download", handlers.DownloadHandler)
 	r.Post("/api/upload", handlers.UploadHandler)
 	r.Get("/api/ip", handlers.IPHandler)
+	r.Get("/api/ping", handlers.PingHandler)
 
 	addr := fmt.Sprintf("%s:%d", config.ListenAddr(), config.ListenPort())
 
